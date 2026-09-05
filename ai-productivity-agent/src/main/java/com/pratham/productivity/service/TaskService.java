@@ -3,6 +3,7 @@ import com.pratham.productivity.entity.Task;
 import com.pratham.productivity.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import com.pratham.productivity.exception.ResourceNotFoundException;
 
 @Service
 public class TaskService {
@@ -20,27 +21,33 @@ public class TaskService {
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
     }
-
     public Task getTaskById(Long id) {
-        return taskRepository.findById(id).orElse(null);
+        return taskRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Task not found with id: " + id)
+                );
     }
 
     public Task updateTask(Long id, Task updatedTask) {
-        Task existingTask = taskRepository.findById(id).orElse(null);
+        Task existingTask = taskRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Task not found with id: " + id)
+                );
 
-        if (existingTask != null) {
-            existingTask.setTitle(updatedTask.getTitle());
-            existingTask.setDescription(updatedTask.getDescription());
-            existingTask.setCompleted(updatedTask.isCompleted());
+        existingTask.setTitle(updatedTask.getTitle());
+        existingTask.setDescription(updatedTask.getDescription());
+        existingTask.setCompleted(updatedTask.isCompleted());
 
-            return taskRepository.save(existingTask);
-        }
-
-        return null;
+        return taskRepository.save(existingTask);
     }
 
     public void deleteTask(Long id) {
-        taskRepository.deleteById(id);
+        Task existingTask = taskRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Task not found with id: " + id)
+                );
+
+        taskRepository.delete(existingTask);
     }
 
 }
