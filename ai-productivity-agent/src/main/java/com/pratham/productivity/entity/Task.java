@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import com.pratham.productivity.entity.User;
 
 
 
@@ -22,4 +25,9 @@ public class Task {
     private String title;
     private String description;
     private boolean completed;
+
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

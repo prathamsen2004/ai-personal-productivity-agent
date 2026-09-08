@@ -1,18 +1,15 @@
 package com.pratham.productivity.controller;
-import org.springframework.web.bind.annotation.PutMapping;
+
+import com.pratham.productivity.dto.CreateTaskRequest;
 import com.pratham.productivity.entity.Task;
 import com.pratham.productivity.service.TaskService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import com.pratham.productivity.dto.CreateTaskRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class TaskController {
@@ -24,37 +21,60 @@ public class TaskController {
     }
 
     @PostMapping("/tasks")
-    public ResponseEntity<Task> createTask(@Valid @RequestBody CreateTaskRequest request) {
+    public ResponseEntity<Task> createTask(
+            @Valid @RequestBody CreateTaskRequest request,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
         Task task = new Task();
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
         task.setCompleted(false);
 
-        Task createdTask = taskService.createTask(task);
+        Task createdTask = taskService.createTask(task, email);
 
         return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }
 
     @GetMapping("/tasks")
-    public List<Task> getAllTasks() {
-        return taskService.getAllTasks();
+    public List<Task> getAllTasks(Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return taskService.getAllTasks(email);
     }
 
     @GetMapping("/tasks/{id}")
-    public Task getTaskById(@PathVariable Long id) {
-        return taskService.getTaskById(id);
+    public Task getTaskById(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return taskService.getTaskById(id, email);
     }
 
     @PutMapping("/tasks/{id}")
-    public Task updateTask(@PathVariable Long id, @RequestBody Task task) {
-        return taskService.updateTask(id, task);
+    public Task updateTask(
+            @PathVariable Long id,
+            @RequestBody CreateTaskRequest request,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return taskService.updateTask(id, request, email);
     }
 
     @DeleteMapping("/tasks/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        taskService.deleteTask(id);
+    public ResponseEntity<Void> deleteTask(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        taskService.deleteTask(id, email);
+
         return ResponseEntity.noContent().build();
     }
-
-
 }
