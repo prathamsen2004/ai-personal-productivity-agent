@@ -27,12 +27,7 @@ public class TaskController {
 
         String email = authentication.getName();
 
-        Task task = new Task();
-        task.setTitle(request.getTitle());
-        task.setDescription(request.getDescription());
-        task.setCompleted(false);
-
-        Task createdTask = taskService.createTask(task, email);
+        Task createdTask = taskService.createTask(request, email);
 
         return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }
